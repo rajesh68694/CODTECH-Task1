@@ -1,0 +1,50 @@
+import pandas as pd
+import numpy as np
+
+# Sample Data (replace this with your actual dataset)
+data = {
+    'Age': [25, 30, None, 35, 40, None],
+    'Salary': [50000, 60000, 70000, None, 85000, 90000],
+    'City': ['New York', 'Los Angeles', 'Chicago', 'New York', 'Los Angeles', 'Chicago'],
+    'Purchased': ['Yes', 'No', 'Yes', 'No', 'Yes', 'No']
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# 1. Handling Missing Data:
+# For numerical columns, fill missing values with the mean
+df['Age'].fillna(df['Age'].mean(), inplace=True)
+df['Salary'].fillna(df['Salary'].mean(), inplace=True)
+
+# For categorical columns (City), fill missing values with the most frequent value
+df['City'].fillna(df['City'].mode()[0], inplace=True)
+
+# 2. Encoding Categorical Data: One-Hot Encoding for 'City'
+# Convert the 'City' column to a set of binary columns
+df_encoded = pd.get_dummies(df, columns=['City'], drop_first=True)
+
+# 3. Scaling Numerical Features: Min-Max Scaling
+# Scale 'Age' and 'Salary' to a range between 0 and 1
+df_encoded['Age'] = (df_encoded['Age'] - df_encoded['Age'].min()) / (df_encoded['Age'].max() - df_encoded['Age'].min())
+df_encoded['Salary'] = (df_encoded['Salary'] - df_encoded['Salary'].min()) / (df_encoded['Salary'].max() - df_encoded['Salary'].min())
+
+# 4. Splitting the Data: Train-Test Split (80%-20%)
+# Separate features (X) and target (y)
+X = df_encoded.drop('Purchased', axis=1)  # Features (input variables)
+y = df_encoded['Purchased'].apply(lambda x: 1 if x == 'Yes' else 0)  # Target (output variable)
+
+# Split data into training (80%) and testing (20%) sets manually
+train_size = int(0.8 * len(X))
+X_train, X_test = X[:train_size], X[train_size:]
+y_train, y_test = y[:train_size], y[train_size:]
+
+# Print processed data to show the result
+print("Processed Training Features:")
+print(X_train)
+print("\nProcessed Training Target:")
+print(y_train)
+print("\nProcessed Test Features:")
+print(X_test)
+print("\nProcessed Test Target:")
+print(y_test)
